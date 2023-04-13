@@ -1,6 +1,6 @@
 #ifndef QPORTAUDIO_H
 #define QPORTAUDIO_H
-
+#include <QMetaType>
 
 #include <string>
 
@@ -44,6 +44,5 @@ public:
     }
     enum class Mode { AudioInput, AudioOutput };
 };
-
 
 #endif // QPORTAUDIO_H

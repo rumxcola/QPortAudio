@@ -202,6 +202,7 @@ Q_SIGNALS:
      * This is the current state of the audio output.
      */
     void stateChanged(QPortAudio::State state);
+    //void stateChanged(int);
 
     /**
      * This signal is emitted when a certain interval of milliseconds of audio data has been processed.

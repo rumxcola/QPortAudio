@@ -1,19 +1,19 @@
 #include "qport_audio_output.h"
+Q_DECLARE_METATYPE(QPortAudio::State)
 
 QPortAudioOutput::QPortAudioOutput(const QPortAudioDeviceInfo &audioDeviceInfo, const QPortAudioFormat &format_, QObject *parent_):
     QObject(parent_),
     fmt__(format_),
     devInfo__(audioDeviceInfo),
     dev__(devInfo__.info__)
-{
+{    
+    qRegisterMetaType<QPortAudio::State>();
     dev__.addStateListener(this);
-    std::cout<<"QPortAudioOutput()"<<std::endl;
 }
 
 QPortAudioOutput::~QPortAudioOutput(){
     dev__.removeStateListener(this);
     stop();
-    std::cout<<"~QPortAudioOutput()"<<std::endl;
 }
 
 void QPortAudioOutput::onStateChanged(PortAudio::PortAudioDevInfo::State state_){
@@ -96,10 +96,6 @@ void QPortAudioOutput::volumize(char *buf_, int64_t len_){
 }
 
 void QPortAudioOutput::setState(QPortAudio::State s){
-    std::cout<<"    QPortAudioOutput: "
-          <<QPortAudio::stateToString(state__)
-          <<"->"<<QPortAudio::stateToString(s)
-          <<std::endl;
     if(s==state__)
         return;
     state__=s;
@@ -112,13 +108,10 @@ int64_t QPortAudioOutput::read(char * buf_, int64_t len_){
         return len_;
     }
     auto res=device__->read(buf_,len_);
-    if(res<len_){
-        std::cout<<"QPortAudioOutput dataLen "<<res<<std::endl;
+    if(res<len_)
         setState(QPortAudio::State::IdleState);
-    }
+
     volumize(buf_,len_);
-    if(res!=len_)
-        std::cout<<"QPAO:"<<len_<<"->"<<res<<std::endl;
     ++pollings__;
     millisSinceLastNotification__+=pollings__*1000*settings__.framesPerBuffer/settings__.sampleRate;
     if(millisSinceLastNotification__>=notifyIntervalInMillis__){
